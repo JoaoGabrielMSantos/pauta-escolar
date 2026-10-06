@@ -32,5 +32,6 @@ jobs:
             style
             revert
           requireScope: false
-          subjectPattern: ^(?![A-Z]).+$
+          # Lowercase subjects, except Dependabot's fixed "Bump …" wording.
+          subjectPattern: ^(?:(?![A-Z]).+|Bump .+)$
           subjectPatternError: The subject "{subject}" must start with a lowercase letter.
