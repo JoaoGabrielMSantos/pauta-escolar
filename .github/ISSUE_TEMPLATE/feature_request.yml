@@ -1,0 +1,37 @@
+name: Funcionalidade
+description: Sugira uma melhoria ou nova funcionalidade
+title: 'feat: '
+labels: [enhancement]
+body:
+  - type: dropdown
+    id: role
+    attributes:
+      label: Para qual papel?
+      multiple: true
+      options: [Secretaria, Professor, Aluno, Responsável, Super-admin]
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Qual problema isso resolve?
+      description: Conte a situação real na escola que motiva o pedido.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposta
+      description: Como você imagina a solução? Fluxo, tela, regra de negócio.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas consideradas
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Confirmações
+      options:
+        - label: Verifiquei o `docs/ROADMAP.md` e o pedido não está lá.

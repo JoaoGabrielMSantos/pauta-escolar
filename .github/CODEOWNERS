@@ -1,0 +1,7 @@
+# Default owner for everything in the repository.
+* @JoaoGabrielMSantos
+
+# Security-sensitive areas (always reviewed by the owner).
+/supabase/ @JoaoGabrielMSantos
+/docs/adr/ @JoaoGabrielMSantos
+/.github/ @JoaoGabrielMSantos

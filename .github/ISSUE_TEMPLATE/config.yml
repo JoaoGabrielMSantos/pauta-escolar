@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Vulnerabilidade de segurança
+    url: https://github.com/JoaoGabrielMSantos/pauta-escolar/security/advisories/new
+    about: Reporte vulnerabilidades de forma privada (não abra issue pública).
