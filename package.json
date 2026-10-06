@@ -1,6 +1,6 @@
 {
   "name": "pauta-escolar",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "license": "UNLICENSED",
   "description": "Pauta Escolar — SaaS multi-tenant de gestão escolar para Ensino Fundamental II e Médio.",
