@@ -225,6 +225,10 @@ Multi-tenant school-management SaaS (Ensino Fundamental II e Médio, Brazil). So
 ## Gotchas
 
 - TypeScript is pinned to **6.0.x**: typescript-eslint supports `<6.1`. ESLint is pinned to **9.x**: eslint-plugin-jsx-a11y does not support 10. Dependabot ignores those majors.
+- **Dependency audit:** CI runs `pnpm audit --audit-level high` over all dependencies, and `pnpm audit --prod` must stay clean.
+  - Fixable advisories are patched with `overrides` in `pnpm-workspace.yaml`.
+  - Security patches are the only allowed `minimumReleaseAgeExclude` entries, each dated. Remove `source-map-js@1.2.2` after 2026-10-07.
+  - Unfixable advisories in **dev-only** tooling are ignored by GHSA id in `auditConfig.ignoreGhsas`, each with its reasoning. Revisit them on every Dependabot bump of the parent package.
 - Tailwind runs through **PostCSS** (`@tailwindcss/postcss`), so Next/Turbopack and Storybook/Vite share one pipeline.
 - Vite 8 resolves the tsconfig paths natively (`resolve.tsconfigPaths`); no plugin is needed.
 - Lighthouse CI asserts performance ≥ **0.90** until M9, where the gate is raised to 0.95. Accessibility, best practices and SEO are asserted at ≥ 0.95 already.
