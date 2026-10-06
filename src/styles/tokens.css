@@ -1,0 +1,116 @@
+/*
+ * Pauta Escolar — design tokens (source: docs/design/README.md, v2 handoff).
+ *
+ * Raw values live here as CSS custom properties so a future theme (dark mode, see
+ * docs/ROADMAP.md) only has to override this layer. `src/app/globals.css` maps them
+ * into the Tailwind v4 theme (`@theme inline`) and declares the tokens that are
+ * Tailwind namespaces (radii, shadows, easing). Never hardcode these values in
+ * components — use the Tailwind utilities or `var(--token)`.
+ */
+
+:root {
+  /* ── Text ─────────────────────────────────────────────────────────── */
+  --ink: #0d1523; /* main text */
+  --ink-2: #33425b; /* strong secondary text */
+  --muted: #607084; /* secondary text — AA-adjusted from #6B7C93 (ADR-0007) */
+  --subtle: #93a1b5; /* LARGE or decorative text, disabled states and non-text only (2.6:1) */
+
+  /* ── Lines ────────────────────────────────────────────────────────── */
+  --line: #e4e9f0; /* card/input borders */
+  --line-soft: #eff2f7; /* inner dividers, neutral chip background */
+  --line-strong: #c8d4e6; /* hover borders, empty inputs */
+
+  /* ── Surfaces ─────────────────────────────────────────────────────── */
+  --bg: #f4f6fa; /* application background */
+  --surface: #ffffff; /* cards */
+  --surface-2: #fbfcfe; /* inputs */
+  --surface-header: #fafbfd; /* table headers */
+  --surface-inset: #f7f9fc; /* inner blocks */
+
+  /* ── Brand & semantic ─────────────────────────────────────────────── */
+  --primary: #1f4fd8; /* primary action, focus, links */
+  --primary-hover: #1a3fae;
+  --primary-tint: #eaeffd;
+  --primary-tint-border: #c9d8fa;
+  --primary-on-tint: #1b3a8f;
+
+  --petrol: #0c7a6b; /* secondary: reassignment, announcements — AA-adjusted from #0E8B7A (ADR-0007) */
+  --petrol-hover: #0a6357;
+  --petrol-tint: #e4f2ef;
+
+  --success: #117d56; /* approved / present / accepted — AA-adjusted from #12855C (ADR-0007) */
+  --success-hover: #0e6847;
+  --success-tint: #e7f3ed;
+  --success-border: #cde7da; /* success toast border */
+
+  --warning: #8a5a0b; /* attention / pending / justified */
+  --warning-tint: #fbf1e1;
+  --warning-accent: #e0a33c; /* empty-weight borders, incomplete-load accents */
+  --warning-row: #fffdf6; /* justified attendance row */
+
+  --danger: #be3a34; /* error / absence / recovery / cancel */
+  --danger-hover: #a1302b;
+  --danger-tint: #fbebea;
+  --danger-border: #f1c9c6;
+  --danger-field: #fef8f8; /* invalid field background */
+
+  --violet: #4a3e9e; /* status "Transferido" */
+  --violet-tint: #edebf8;
+
+  --progress-blue: #3c6bf0; /* closing progress ≥ 70% */
+
+  /* Subject palette (assigned per subject, data-driven) */
+  --subject-1: #2f4a63;
+  --subject-2: #24497f;
+  --subject-3: #6b4a22;
+  --subject-4: #1f5b6b;
+  --subject-5: #146b56;
+  --subject-6: #4a3e82;
+  --subject-7: #7a2f55;
+  --subject-8: #17273d;
+  --subject-9: #1b3a8f;
+
+  /* ── Dark panel (login / first access / sidebar) ──────────────────── */
+  --panel-gradient: linear-gradient(185deg, #14213a 0%, #0c1424 55%, #080e1a 100%);
+  --sidebar-gradient: linear-gradient(190deg, #101b30 0%, #0c1424 52%, #0a1120 100%);
+  --panel-text: #e8edf6;
+  --panel-nav: #b9c7dd;
+  --panel-muted: #8ca2c6;
+  --panel-label: #6e86ac;
+  --panel-accent: #2ec5a5; /* active nav dot */
+
+  /* ── Overlays ─────────────────────────────────────────────────────── */
+  --overlay-panel: rgb(9 15 26 / 0.36);
+  --overlay-wizard: rgb(9 15 26 / 0.44);
+  --overlay-confirm: rgb(9 15 26 / 0.5);
+
+  /* Typography: font families come from next/font (src/lib/fonts.ts) and are mapped
+     to `font-display` / `font-sans` / `font-mono` in src/app/globals.css. */
+
+  /* Radii, shadows and easing curves are Tailwind theme namespaces, so they are
+     declared directly in the `@theme` block of src/app/globals.css. */
+
+  /* ── Motion durations (docs/design/README.md → "Animações") ───────── */
+  --duration-hover: 120ms;
+  --duration-close: 140ms;
+  --duration-overlay: 180ms;
+  --duration-main: 200ms;
+  --duration-open: 220ms;
+  --duration-stagger: 220ms;
+  --duration-check-scale: 320ms;
+  --duration-check-draw: 340ms;
+  --duration-count: 750ms;
+  --duration-shimmer: 1.2s;
+  --duration-toast: 3.6s;
+
+  /* ── Layout ───────────────────────────────────────────────────────── */
+  --touch-target: 44px;
+  --chip-height: 36px;
+  --row-action-height: 32px;
+  --sidebar-width: 252px;
+  --sidebar-width-tablet: 216px;
+  --side-panel-width: 440px;
+  --confirm-width: 460px;
+  --wizard-width: 620px;
+  --bottom-nav-item-height: 54px;
+}

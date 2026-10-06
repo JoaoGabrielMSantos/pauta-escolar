@@ -16,14 +16,15 @@ This directory records the significant architectural and technical decisions for
 
 ## Index
 
-| # | Title | Status | Date |
-|---|---|---|---|
-| [0001](0001-technology-stack.md) | Technology stack and version policy | Accepted | 2026-10-06 |
-| [0002](0002-multi-tenancy.md) | Multi-tenancy: isolation, tenant resolution and RLS pattern | Accepted | 2026-10-06 |
-| [0003](0003-authentication-and-identity.md) | Authentication and identity | Accepted | 2026-10-06 |
-| [0004](0004-append-only-audit-log.md) | Append-only, hash-chained audit log | Accepted | 2026-10-06 |
-| [0005](0005-grade-engine-and-scales.md) | Grade engine, scales, rounding and attendance rules | Accepted | 2026-10-06 |
-| [0006](0006-environments-and-demo.md) | Environments, configuration and the public demo | Accepted | 2026-10-06 |
+| #                                           | Title                                                       | Status   | Date       |
+| ------------------------------------------- | ----------------------------------------------------------- | -------- | ---------- |
+| [0001](0001-technology-stack.md)            | Technology stack and version policy                         | Accepted | 2026-10-06 |
+| [0002](0002-multi-tenancy.md)               | Multi-tenancy: isolation, tenant resolution and RLS pattern | Accepted | 2026-10-06 |
+| [0003](0003-authentication-and-identity.md) | Authentication and identity                                 | Accepted | 2026-10-06 |
+| [0004](0004-append-only-audit-log.md)       | Append-only, hash-chained audit log                         | Accepted | 2026-10-06 |
+| [0005](0005-grade-engine-and-scales.md)     | Grade engine, scales, rounding and attendance rules         | Accepted | 2026-10-06 |
+| [0006](0006-environments-and-demo.md)       | Environments, configuration and the public demo             | Accepted | 2026-10-06 |
+| [0007](0007-accessible-color-contrast.md)   | AA-compliant adjustments to the v2 palette                  | Accepted | 2026-10-06 |
 
 ## Template
 
@@ -36,19 +37,26 @@ This directory records the significant architectural and technical decisions for
 - Related: <ADRs, PLAN sections, spec sections>
 
 ## Context
+
 What problem are we solving? What forces are at play (product, security, cost, time)?
 
 ## Decision
+
 What we will do, stated precisely enough to implement and to test.
 
 ## Consequences
+
 ### Positive
+
 ### Negative / trade-offs
+
 ### Follow-ups
 
 ## Alternatives considered
+
 Each with the reason it was rejected.
 
 ## Verification
+
 How we will know the decision is implemented correctly (tests, checks, metrics).
 ```

@@ -1,0 +1,24 @@
+# generated / vendored
+pnpm-lock.yaml
+CHANGELOG.md
+next-env.d.ts
+.next/
+out/
+build/
+coverage/
+storybook-static/
+playwright-report/
+test-results/
+.lighthouseci/
+supabase/.temp/
+supabase/.branches/
+
+# design handoff is a reference artifact — never reformat it
+docs/design/
+
+# managed by `next dev` — must stay byte-identical
+AGENTS.md
+
+# third-party agent skills
+.agents/
+.claude/skills/

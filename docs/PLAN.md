@@ -64,12 +64,12 @@ Rules captured from the prototype for `src/domain`:
 
 ## 1. Product decisions confirmed (2026-10-06)
 
-| Topic | Decision |
-|---|---|
-| Grade entry | **Numbers only.** Supported scales are 0–10 and 0–100, entered in scale units. "Conceitos A–E" is a **display mapping**: entry happens on 0–10, and the boletim, PDFs and portals show the concept through configurable bands. Storage is normalized ([ADR-0005](adr/0005-grade-engine-and-scales.md)). |
-| Student first access | The secretaria generates a **provisional password** (printable access slip). The student must change it at first login. Every reset is audited. |
-| Annual result (v1) | **Informative:** annual average, attendance, situation and a frequency alert. Annual closing, final recovery and conselho de classe go to the ROADMAP. |
-| Public demo | **Separate Supabase project and separate Vercel project** at `demo.<root-domain>`, fully reset every day. The production audit log has **no exception** to append-only. |
+| Topic                | Decision                                                                                                                                                                                                                                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Grade entry          | **Numbers only.** Supported scales are 0–10 and 0–100, entered in scale units. "Conceitos A–E" is a **display mapping**: entry happens on 0–10, and the boletim, PDFs and portals show the concept through configurable bands. Storage is normalized ([ADR-0005](adr/0005-grade-engine-and-scales.md)). |
+| Student first access | The secretaria generates a **provisional password** (printable access slip). The student must change it at first login. Every reset is audited.                                                                                                                                                         |
+| Annual result (v1)   | **Informative:** annual average, attendance, situation and a frequency alert. Annual closing, final recovery and conselho de classe go to the ROADMAP.                                                                                                                                                  |
+| Public demo          | **Separate Supabase project and separate Vercel project** at `demo.<root-domain>`, fully reset every day. The production audit log has **no exception** to append-only.                                                                                                                                 |
 
 ## 2. Architecture overview
 
@@ -131,6 +131,7 @@ e2e/       Playwright specs + axe + visual baselines
 ```
 
 **Refinement over spec §4.2: role segments instead of route groups.** URLs carry the role: `/secretaria/...`, `/professor/...`, `/aluno/...`, `/familia/...`.
+
 - Several roles share slugs (`notas`, `frequencia`, `comunicados`), so route groups would collide.
 - The segment becomes an explicit authorization boundary.
 
@@ -152,7 +153,7 @@ This section summarizes the model. The details live in ADRs 0002–0004.
   - E2E runs in path mode, plus one subdomain smoke test.
   - The demo deployment uses `single`.
 - **Session cookie:** scoped to `.<root>` in production, so one login covers users who belong to several schools.
-- **Authorization:** the URL only *selects* the tenant. Authorization is always membership + RLS on the row's `tenant_id`. Nothing that comes from the client is trusted.
+- **Authorization:** the URL only _selects_ the tenant. Authorization is always membership + RLS on the row's `tenant_id`. Nothing that comes from the client is trusted.
 - **Multi-school users:**
   - The sidebar school switcher already exists in the prototype ("E. M. Jardim Botânico ▾").
   - Guardian dependent chips span tenants and show each child's school. Picking a child from another school switches host transparently.
@@ -287,28 +288,29 @@ Scores are stored normalized as `numeric(7,6)` in 0..1 ([ADR-0005](adr/0005-grad
 
 ## 6. Domain engine (`src/domain`, pure TypeScript, 100% coverage)
 
-| Module | Responsibility |
-|---|---|
-| `numbers` | Parse and format pt-BR numbers ("5,5" ⇄ 5.5); half-up rounding |
-| `scale` | Normalize ⇄ display; concept bands; ceiling validation |
-| `composition` | Category sum; publish validation and messages |
-| `grades` | Term total; completeness; pending fields |
-| `averages` | Term average; weighted annual average |
-| `recovery` | The 3 rules, formula text, eligibility and result |
-| `situation` | Enum → icon + label + tone |
-| `attendance` | Raw % and legal %; alert bands |
-| `risk` | Radar index and pt-BR explanations |
-| `enrollment` | Lifecycle state machine |
-| `invitations` | Status and relative text ("enviado 20/09 · expira em 5 dias") |
-| `codes` | Tenant-code auto-generation, reserved list, verification codes |
-| `names` | Initials; deterministic avatar colors |
-| `masking` | CPF; partial names for `/verificar` |
-| `dates` | `America/Sao_Paulo` via `@date-fns/tz`; pt-BR relative labels |
-| `terms` | Labels from term_type ("2º trimestre", "2º tri") |
+| Module        | Responsibility                                                 |
+| ------------- | -------------------------------------------------------------- |
+| `numbers`     | Parse and format pt-BR numbers ("5,5" ⇄ 5.5); half-up rounding |
+| `scale`       | Normalize ⇄ display; concept bands; ceiling validation         |
+| `composition` | Category sum; publish validation and messages                  |
+| `grades`      | Term total; completeness; pending fields                       |
+| `averages`    | Term average; weighted annual average                          |
+| `recovery`    | The 3 rules, formula text, eligibility and result              |
+| `situation`   | Enum → icon + label + tone                                     |
+| `attendance`  | Raw % and legal %; alert bands                                 |
+| `risk`        | Radar index and pt-BR explanations                             |
+| `enrollment`  | Lifecycle state machine                                        |
+| `invitations` | Status and relative text ("enviado 20/09 · expira em 5 dias")  |
+| `codes`       | Tenant-code auto-generation, reserved list, verification codes |
+| `names`       | Initials; deterministic avatar colors                          |
+| `masking`     | CPF; partial names for `/verificar`                            |
+| `dates`       | `America/Sao_Paulo` via `@date-fns/tz`; pt-BR relative labels  |
+| `terms`       | Labels from term_type ("2º trimestre", "2º tri")               |
 
 **Rounding rule.** Threshold comparisons use the value **rounded to display precision**, so what users see is what gets evaluated. This fixes a prototype edge case where 5,97 displays as "6,0" but evaluates as recovery. The default is to be confirmed at M4.
 
 **Parity between TypeScript and SQL.**
+
 - Rules that also run in SQL (recovery, term total, attendance %, risk) share fixtures in `src/domain/__fixtures__/*.json`.
 - Vitest consumes the fixtures directly.
 - `scripts/gen-parity-tests.ts` generates pgTAP tests from the same cases. CI fails if the generated files are stale.
@@ -391,6 +393,7 @@ Scores are stored normalized as `numeric(7,6)` in 0..1 ([ADR-0005](adr/0005-grad
 ## 10. Milestones
 
 Every milestone ends with:
+
 - tests green;
 - a PR opened;
 - a summary with screenshots and a list of pending items;
@@ -403,6 +406,7 @@ Every milestone ends with:
 ### M0 — Foundation → `v0.1.0` (M)
 
 **Tasks**
+
 - Toolchain:
   - pnpm (`npm i -g pnpm`) and Node 24 pinned through `.nvmrc` and `engines`.
   - `.editorconfig` and `.gitattributes` (LF line endings).
@@ -430,6 +434,7 @@ Every milestone ends with:
 ### M1 — Database and security → `v0.2.0` (L)
 
 **Tasks**
+
 - **Schema:**
   - Extensions: pgcrypto, citext, pg_trgm, unaccent, pg_cron.
   - The `app`, `audit` and `private` schemas, and the enums.
@@ -455,12 +460,14 @@ Every milestone ends with:
   - `supabase db advisors` running locally in CI.
 
 **Done when:** pgTAP is 100% green in CI and the advisors report zero WARN/ERROR.
+
 - INFO-level "unused index" findings on an empty database are documented.
 - So is any gap that only exists on the Free plan, such as leaked-password protection.
 
 ### M2 — Auth and tenancy → `v0.3.0` (L)
 
 **Tasks**
+
 - **`proxy.ts`:**
   - Host or path → tenant, with reserved codes and a cached lookup.
   - Session refresh (`getClaims`).
@@ -484,6 +491,7 @@ Every milestone ends with:
   - TOTP MFA for platform admins.
 
 **Done when:**
+
 - The E2E flow "create school → invite secretaria → first access → login" passes, including the student login path.
 - axe is clean.
 - Login, Primeiro acesso and Plataforma pass the fidelity check.
@@ -491,6 +499,7 @@ Every milestone ends with:
 ### M3 — Shell and design system → `v0.4.0` (L)
 
 **Tasks**
+
 - All base components restyled, with stories for every state.
 - **Role shells:**
   - Sidebar (252 px, or 216 px on tablet).
@@ -512,6 +521,7 @@ Every milestone ends with:
 ### M4 — Secretaria acadêmica → `v0.5.0` (XL)
 
 **Tasks**
+
 - **Painel:**
   - KPIs with real 8-month **sparklines** and the count-up animation.
   - Quick actions.
@@ -537,6 +547,7 @@ Every milestone ends with:
 ### M5 — Professor → `v0.6.0` (XL)
 
 **Tasks**
+
 - **Minhas turmas:** cards, the day's agenda, alerts.
 - **Turma page:**
   - Mural: aviso, atividade or material, with topics, comments and attachments.
@@ -566,6 +577,7 @@ Every milestone ends with:
 ### M6 — Aluno and família → `v0.7.0` (L)
 
 **Tasks**
+
 - **Aluno:**
   - Minhas matérias (with skeleton).
   - The subject feed, with "marcar como entregue" and attachments.
@@ -587,6 +599,7 @@ Every milestone ends with:
 ### M7 — Governança → `v0.8.0` (L)
 
 **Tasks**
+
 - **Request queues** (Realtime):
   - Justificativas: approve (the absence is excused) or refuse with a reason ≥ 10.
   - Retificações: approve through the privileged function, or refuse with a reason ≥ 10.
@@ -607,6 +620,7 @@ Every milestone ends with:
 ### M8 — Assinatura → `v0.9.0` (XL)
 
 **Tasks**
+
 - **Radar pedagógico:**
   - Deterministic scoring in SQL, run nightly by pg_cron and on demand.
   - Weights and thresholds configurable per school.
@@ -640,6 +654,7 @@ Every milestone ends with:
 ### M9 — Lançamento → `v1.0.0` (L)
 
 **Tasks**
+
 - A landing page with the portfolio pitch.
 - Lighthouse ≥ 95 on all four categories (mobile), on the landing page and the main screens.
 - A final accessibility and security review: headers and CSP, an RLS re-audit, rate limits, dependencies.
@@ -654,21 +669,21 @@ Every milestone ends with:
 
 ## 11. Risks and mitigations
 
-| Risk | Mitigation |
-|---|---|
-| Pixel fidelity versus Radix/shadcn defaults | Use the primitives only for behavior and restyle 100% through tokens. Run the side-by-side MCP comparison on every screen. |
-| Hash-chain lock contention on bulk grade saves (≈ 112 audit rows per save) | Lock per tenant, not globally. Benchmark in M1; fall back to one audit row per statement. |
-| Supabase Auth per-IP limits see Vercel's IP when login runs server-side | Verify at M2 (forwarded IP header). Keep our own limiter and lockout. Fallback: email users sign in from the browser. |
-| Synthetic student emails triggering mail | Accounts are created already confirmed; the Send Email hook drops `*.pauta.internal`; recovery is disabled for students. |
-| Cross-subdomain cookies and CSRF | Cookie on `.<root>` only in production; Server Actions `allowedOrigins`; `SameSite=Lax`; Origin checks on route handlers. |
-| "Zero advisors" on the Free plan (leaked-password protection is Pro-only) | Document the exception, or upgrade before M9. Owner's call. |
-| Serwist + Turbopack maturity | Configurator mode, which is bundler-agnostic. Re-check with Context7 at M8. |
-| iOS Web Push requires an installed PWA (iOS 16.4+) | Install prompt; in-app notifications as the baseline. |
-| Visual regression flakiness across operating systems | Generate baselines only inside the Playwright Linux container. |
-| Wildcard domains on Vercel require Vercel nameservers | Decide the root domain before M9. Everything reads `NEXT_PUBLIC_ROOT_DOMAIN`. |
-| Free-tier projects pause after inactivity | The daily demo reset keeps the demo active. Restore prod through the MCP when needed. |
-| Branch protection on private repos requires GitHub Pro | Keep the repository public (it is a portfolio piece). |
-| Scope size (10 milestones, two of them XL) | Strict milestone gates. Anything new goes to the ROADMAP, not into the current milestone. |
+| Risk                                                                       | Mitigation                                                                                                                 |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Pixel fidelity versus Radix/shadcn defaults                                | Use the primitives only for behavior and restyle 100% through tokens. Run the side-by-side MCP comparison on every screen. |
+| Hash-chain lock contention on bulk grade saves (≈ 112 audit rows per save) | Lock per tenant, not globally. Benchmark in M1; fall back to one audit row per statement.                                  |
+| Supabase Auth per-IP limits see Vercel's IP when login runs server-side    | Verify at M2 (forwarded IP header). Keep our own limiter and lockout. Fallback: email users sign in from the browser.      |
+| Synthetic student emails triggering mail                                   | Accounts are created already confirmed; the Send Email hook drops `*.pauta.internal`; recovery is disabled for students.   |
+| Cross-subdomain cookies and CSRF                                           | Cookie on `.<root>` only in production; Server Actions `allowedOrigins`; `SameSite=Lax`; Origin checks on route handlers.  |
+| "Zero advisors" on the Free plan (leaked-password protection is Pro-only)  | Document the exception, or upgrade before M9. Owner's call.                                                                |
+| Serwist + Turbopack maturity                                               | Configurator mode, which is bundler-agnostic. Re-check with Context7 at M8.                                                |
+| iOS Web Push requires an installed PWA (iOS 16.4+)                         | Install prompt; in-app notifications as the baseline.                                                                      |
+| Visual regression flakiness across operating systems                       | Generate baselines only inside the Playwright Linux container.                                                             |
+| Wildcard domains on Vercel require Vercel nameservers                      | Decide the root domain before M9. Everything reads `NEXT_PUBLIC_ROOT_DOMAIN`.                                              |
+| Free-tier projects pause after inactivity                                  | The daily demo reset keeps the demo active. Restore prod through the MCP when needed.                                      |
+| Branch protection on private repos requires GitHub Pro                     | Keep the repository public (it is a portfolio piece).                                                                      |
+| Scope size (10 milestones, two of them XL)                                 | Strict milestone gates. Anything new goes to the ROADMAP, not into the current milestone.                                  |
 
 ## 12. Prerequisites from the owner
 
@@ -685,15 +700,15 @@ Every milestone ends with:
 
 Each question is asked at the start of the milestone that needs it. A default is proposed for each.
 
-| Milestone | Question | Proposed default |
-|---|---|---|
-| M0 | License for the code? | MIT (portfolio-friendly) vs proprietary / source-available (commercial) |
-| M4 | Concept bands? | A ≥ 9 · B ≥ 7,5 · C ≥ 6 · D ≥ 4 · E < 4 |
-| M4 | Term weights for the annual average? | Equal weights |
-| M4 | Rounding? | Half-up to 1 decimal; comparisons on the rounded value |
-| M5 | Do justified absences stay out of the legal minimum, as in the prototype? | Yes, confirm |
-| M6 | Wording and legal meaning of "assinatura digital" on incidents | Click-wrap with audit, not ICP-Brasil |
-| M8 | Radar weights and thresholds; which events push to guardians by default | To be proposed at M8 |
+| Milestone | Question                                                                  | Proposed default                                                        |
+| --------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| M0        | License for the code?                                                     | MIT (portfolio-friendly) vs proprietary / source-available (commercial) |
+| M4        | Concept bands?                                                            | A ≥ 9 · B ≥ 7,5 · C ≥ 6 · D ≥ 4 · E < 4                                 |
+| M4        | Term weights for the annual average?                                      | Equal weights                                                           |
+| M4        | Rounding?                                                                 | Half-up to 1 decimal; comparisons on the rounded value                  |
+| M5        | Do justified absences stay out of the legal minimum, as in the prototype? | Yes, confirm                                                            |
+| M6        | Wording and legal meaning of "assinatura digital" on incidents            | Click-wrap with audit, not ICP-Brasil                                   |
+| M8        | Radar weights and thresholds; which events push to guardians by default   | To be proposed at M8                                                    |
 
 ## 14. Out of scope (goes to `docs/ROADMAP.md` in M0)
 
@@ -711,15 +726,15 @@ Each question is asked at the start of the milestone that needs it. A default is
 
 ## 15. Documentation index
 
-| Document | Content |
-|---|---|
-| [docs/adr/README.md](adr/README.md) | ADR index and template |
-| [ADR-0001](adr/0001-technology-stack.md) | Technology stack and version policy |
-| [ADR-0002](adr/0002-multi-tenancy.md) | Multi-tenancy, tenant resolution, URL structure and RLS pattern |
+| Document                                            | Content                                                               |
+| --------------------------------------------------- | --------------------------------------------------------------------- |
+| [docs/adr/README.md](adr/README.md)                 | ADR index and template                                                |
+| [ADR-0001](adr/0001-technology-stack.md)            | Technology stack and version policy                                   |
+| [ADR-0002](adr/0002-multi-tenancy.md)               | Multi-tenancy, tenant resolution, URL structure and RLS pattern       |
 | [ADR-0003](adr/0003-authentication-and-identity.md) | Authentication and identity, including student logins and invitations |
-| [ADR-0004](adr/0004-append-only-audit-log.md) | Append-only, hash-chained audit log |
-| [ADR-0005](adr/0005-grade-engine-and-scales.md) | Grade engine, scales, rounding and attendance rules |
-| [ADR-0006](adr/0006-environments-and-demo.md) | Environments, configuration and the public demo |
+| [ADR-0004](adr/0004-append-only-audit-log.md)       | Append-only, hash-chained audit log                                   |
+| [ADR-0005](adr/0005-grade-engine-and-scales.md)     | Grade engine, scales, rounding and attendance rules                   |
+| [ADR-0006](adr/0006-environments-and-demo.md)       | Environments, configuration and the public demo                       |
 
 `CLAUDE.md`, `docs/ROADMAP.md`, the README and all tooling are created in **M0**.
 

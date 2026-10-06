@@ -1,0 +1,78 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: America/Sao_Paulo
+    # Same supply-chain quarantine as pnpm (minimumReleaseAge): never propose a release
+    # younger than 7 days.
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: chore(deps)
+      prefix-development: chore(deps-dev)
+    labels: [dependencies]
+    groups:
+      next-react:
+        patterns: [next, react, react-dom, eslint-config-next, '@types/react', '@types/react-dom']
+      storybook:
+        patterns: [storybook, '@storybook/*', eslint-plugin-storybook]
+      testing:
+        patterns:
+          [
+            vitest,
+            '@vitest/*',
+            '@testing-library/*',
+            jsdom,
+            '@playwright/test',
+            '@axe-core/*',
+            '@lhci/*',
+          ]
+      lint-format:
+        patterns: [eslint, 'eslint-*', typescript-eslint, prettier, 'prettier-*', globals]
+      ui:
+        patterns:
+          [
+            tailwindcss,
+            '@tailwindcss/*',
+            postcss,
+            radix-ui,
+            lucide-react,
+            cn,
+            class-variance-authority,
+            tw-animate-css,
+            shadcn,
+          ]
+      tooling:
+        patterns: [husky, lint-staged, '@commitlint/*', supabase, vite, '@vitejs/*', '@types/node']
+    ignore:
+      # typescript-eslint supports TypeScript < 6.1 (docs/adr/0001-technology-stack.md, M0 addendum).
+      - dependency-name: typescript
+        versions: ['>=6.1.0']
+      # eslint-plugin-jsx-a11y does not support ESLint 10 yet.
+      - dependency-name: eslint
+        versions: ['>=10.0.0']
+      # Node 24 LTS is the runtime; keep its types on the same major.
+      - dependency-name: '@types/node'
+        versions: ['>=25.0.0']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: America/Sao_Paulo
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ci
+    labels: [dependencies]
+    groups:
+      actions:
+        patterns: ['*']

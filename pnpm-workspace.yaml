@@ -1,0 +1,46 @@
+# pnpm settings (pnpm 12 reads project settings from this file).
+saveExact: true
+
+# Supply-chain hardening: never install a version published less than 7 days ago
+# (value in minutes). See docs/adr/0001-technology-stack.md (version policy).
+minimumReleaseAge: 10080
+
+# Security patches are the only exception to the quarantine. Remove each entry once the
+# version is older than 7 days (it then passes the policy on its own).
+minimumReleaseAgeExclude:
+  - source-map-js@1.2.2 # GHSA-68fv-2mgg-jv7q, published 2026-09-30 → removable after 2026-10-07
+
+overrides:
+  # GHSA-68fv-2mgg-jv7q (high): patched in 1.2.2. Runtime path: next > postcss > source-map-js.
+  source-map-js: 1.2.2
+
+# Advisories without a usable fix, in development-only tooling. Each one is reviewed
+# whenever Dependabot bumps the parent package; remove the entry as soon as a fix lands.
+auditConfig:
+  ignoreGhsas:
+    # braces (high, no patched release): only via the shadcn CLI and eslint-config-next
+    # (fast-glob/micromatch over our own trusted glob patterns).
+    - GHSA-vfj7-8cjw-p6xm
+    # extract-zip (high, no patched release): only via @lhci/cli > puppeteer browser
+    # downloads, which CI never uses (Lighthouse runs the runner's installed Chrome).
+    - GHSA-jmr9-qjv8-65gv
+    - GHSA-7pqw-9j4j-h8q3
+    # basic-ftp (high): fixed only in 6.x while get-uri pins ^5; reached only through
+    # @lhci/cli's PAC proxy agent for ftp:// URLs, which are never used.
+    - GHSA-c475-qrg2-pj4r
+    # tmp (high): fixed only in 0.2.6+ while @lhci/cli pins ^0.1/^0.0.33; used by the
+    # interactive `lhci wizard` editor only, never in `lhci autorun`.
+    - GHSA-ph9p-34f9-6g65
+
+# tsconfck (transitive via @storybook/nextjs-vite) only uses TypeScript for an
+# optional native parser; TS 6 is compatible.
+peerDependencyRules:
+  allowedVersions:
+    tsconfck>typescript: '6'
+
+# Only packages listed here may run install scripts.
+allowBuilds:
+  esbuild: true
+  supabase: true
+  sharp: false
+  unrs-resolver: false

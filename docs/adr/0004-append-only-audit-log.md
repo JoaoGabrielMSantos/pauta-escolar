@@ -20,6 +20,7 @@ The design's audit screen filters by user, by action type (Nota alterada, Matrí
 ## Decision
 
 ### 1. Storage
+
 - `audit.audit_log` lives in the `audit` schema, which is **not exposed** to the Data API.
 - Columns:
 
@@ -53,6 +54,7 @@ The design's audit screen filters by user, by action type (Nota alterada, Matrí
 - The other categories appear under "Todos". Whether to add more chips is decided in M7, using the v2 tokens.
 
 ### 2. Write path: triggers only
+
 - `audit.capture()` is a generic `AFTER INSERT OR UPDATE OR DELETE … FOR EACH ROW` trigger function, attached to every audited table.
 - Per-table configuration lives in `audit.tracked_tables`: category, action names, ignored columns (`updated_at`, …) and redacted columns (CPF, phone, address).
 - The function is `security definer`, owned by a dedicated `audit_writer` role (`nologin`), the only role allowed to `INSERT` into `audit.audit_log`.
@@ -63,6 +65,7 @@ The design's audit screen filters by user, by action type (Nota alterada, Matrí
   - The insert, chaining and immutability rules are identical.
 
 ### 3. Immutability
+
 - The table is owned by `audit_owner` (`nologin`, no member roles).
 - Privileges:
 
@@ -77,6 +80,7 @@ The design's audit screen filters by user, by action type (Nota alterada, Matrí
 - Reads go only through RPCs (§5). No role has `SELECT` on the table directly.
 
 ### 4. Hash chain (per tenant)
+
 - A `BEFORE INSERT` trigger on `audit.audit_log`:
   1. takes `pg_advisory_xact_lock(hashtextextended('audit:' || coalesce(tenant_id::text, 'platform'), 0))`;
   2. reads the tenant's last `(seq, hash)` through the unique index;
@@ -87,9 +91,9 @@ The design's audit screen filters by user, by action type (Nota alterada, Matrí
      prev_hash = last.hash                                     -- or 32 zero bytes (genesis)
      hash      = sha256(prev_hash || convert_to(canonical_payload::text, 'UTF8'))
      ```
-
   - `canonical_payload` is a `jsonb_build_object` of every content column. `jsonb` text output is deterministic: keys are sorted and whitespace is normalized.
   - `sha256` comes from `pgcrypto` (`extensions.digest`).
+
 - **Per-tenant chains** rather than one global chain:
   - writes in one school never wait for another;
   - each school's log can be verified and exported independently.
@@ -99,6 +103,7 @@ The design's audit screen filters by user, by action type (Nota alterada, Matrí
   - It runs in batches so large tenants are not limited by statement timeouts.
 
 ### 5. Read path
+
 - `public.list_audit_entries(p_tenant, p_from, p_to, p_actor, p_category, p_cursor, p_limit)` is `security definer` in an exposed schema:
   - it explicitly checks `app.has_role(p_tenant, '{secretary}')` or `app.is_platform_admin()`;
   - it paginates with keyset pagination on `(occurred_at, id)`.
@@ -111,6 +116,7 @@ The design's audit screen filters by user, by action type (Nota alterada, Matrí
   The steps are lançada → (alterada) → fechada → retificada / reaberta.
 
 ### 6. What is audited
+
 - **Grades:** grades, recovery grades, grade locks (close and reopen with reason), correction requests and decisions.
 - **Enrollment:** enrollments and enrollment events (new, reassigned, transferred, cancelled, reactivated).
 - **People:** students and guardian links.
@@ -119,17 +125,20 @@ The design's audit screen filters by user, by action type (Nota alterada, Matrí
 - **Other:** attendance records (changes after the initial save, and offline-sync conflicts), absence-justification decisions, incidents, announcements, issued documents, and data-subject requests.
 
 ### 7. Retention and the demo
+
 - Production entries are retained indefinitely: they are school records. The volume is small (text and jsonb).
 - The public demo lives in a **separate Supabase project** that is wiped daily ([ADR-0006](0006-environments-and-demo.md)). Production therefore needs **no exception** to append-only.
 
 ## Consequences
 
 ### Positive
+
 - The audit trail cannot be bypassed by application code: every write path to an audited table fires the trigger, including RPCs, the service role and future code.
 - Tampering with rows is detectable by chain verification. Deletion and update are blocked outright.
 - One mechanism powers four features: the audit screen, the dashboard activity feed, the grade timeline and accountability exports.
 
 ### Negative and trade-offs
+
 - **Contention.** The per-tenant advisory lock is held until commit. A grade-sheet save (about 28 students × 4 categories = 112 rows) serializes audit inserts for that tenant for a few milliseconds.
   - Target: p95 under 300 ms for a 112-row save with 5 concurrent teachers in one tenant, benchmarked in M1.
   - Fallback: statement-level triggers with transition tables, writing one audit row per statement holding an array of row diffs.
@@ -138,11 +147,13 @@ The design's audit screen filters by user, by action type (Nota alterada, Matrí
 - Larger write volume per mutation, which is acceptable at school scale.
 
 ### Follow-ups
+
 - M1: tables, roles, triggers, the chain and verification, pgTAP and the benchmark.
 - M4: the dashboard activity feed.
 - M7: the audit screen, CSV export, super-admin verification and the grade timeline.
 
 ## Alternatives considered
+
 - **Application-level logging (Server Actions writing logs).** The spec forbids it, and any missed code path would leave a silent gap. Rejected.
 - **Supabase's `supa_audit` / pgAudit.**
   - pgAudit writes to Postgres logs: not queryable per tenant, not chained.
@@ -153,6 +164,7 @@ The design's audit screen filters by user, by action type (Nota alterada, Matrí
 - **External ledger services.** Cost and vendor coupling. Only anchoring is considered, on the ROADMAP.
 
 ## Verification
+
 - **pgTAP (CI-blocking):**
   - `UPDATE`, `DELETE` and `TRUNCATE` on `audit.audit_log` fail for `authenticated`, `anon`, `service_role` and `postgres`, through both the guard triggers and the privileges;
   - `SELECT` is denied except through the RPCs;

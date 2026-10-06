@@ -1,0 +1,53 @@
+name: Bug
+description: Algo não funciona como esperado
+title: 'fix: '
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por reportar! **Nunca inclua dados pessoais reais** (nomes de alunos, CPF, e-mails, notas) — use dados fictícios.
+        Vulnerabilidades de segurança **não** devem ser abertas aqui: veja `SECURITY.md`.
+  - type: dropdown
+    id: role
+    attributes:
+      label: Papel
+      options: [Secretaria, Professor, Aluno, Responsável, Super-admin, Público / não logado]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: O que aconteceu?
+      description: Descreva o comportamento observado.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: O que era esperado?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Como reproduzir
+      placeholder: |
+        1. Entrar como …
+        2. Abrir …
+        3. Clicar em …
+    validations:
+      required: true
+  - type: dropdown
+    id: device
+    attributes:
+      label: Dispositivo
+      options: [Celular (< 720px), Tablet (720–1079px), Desktop (≥ 1080px)]
+  - type: input
+    id: browser
+    attributes:
+      label: Navegador e versão
+  - type: textarea
+    id: extra
+    attributes:
+      label: Prints, logs ou contexto adicional
