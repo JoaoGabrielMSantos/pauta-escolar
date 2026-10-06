@@ -1,0 +1,177 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@import '../styles/tokens.css';
+
+/*
+ * Tailwind v4 theme. Defaults that don't belong to the design system are reset so
+ * only token-backed utilities exist (e.g. `text-ink`, `bg-surface`, `rounded-card`).
+ */
+@theme {
+  /* Breakpoints from the handoff: mobile < 720px, tablet 720–1079px, desktop ≥ 1080px */
+  --breakpoint-*: initial;
+  --breakpoint-tablet: 45rem;
+  --breakpoint-desktop: 67.5rem;
+
+  /* Type scale (rem keeps user font scaling; px values from the handoff in comments) */
+  --text-kpi: 2.125rem; /* 34px */
+  --text-kpi--line-height: 1.1;
+  --text-kpi--letter-spacing: -0.075rem;
+  --text-page-title: 1.375rem; /* 22px (19px on mobile) */
+  --text-page-title--line-height: 1.25;
+  --text-page-title--letter-spacing: -0.025rem;
+  --text-page-title-mobile: 1.1875rem; /* 19px */
+  --text-card-title: 0.9375rem; /* 15px */
+  --text-card-title--line-height: 1.35;
+  --text-body: 0.84375rem; /* 13.5px */
+  --text-body--line-height: 1.55;
+  --text-body-sm: 0.8125rem; /* 13px */
+  --text-body-sm--line-height: 1.55;
+  --text-label: 0.75rem; /* 12px */
+  --text-label--line-height: 1.4;
+  --text-pill: 0.71875rem; /* 11.5px */
+  --text-pill--line-height: 1.3;
+  --text-table-head: 0.6875rem; /* 11px */
+  --text-table-head--letter-spacing: 0.04375rem;
+
+  /* Radii */
+  --radius-*: initial;
+  --radius-card: 16px;
+  --radius-modal: 18px;
+  --radius-sheet: 20px;
+  --radius-control: 10px; /* inputs and buttons */
+  --radius-grade: 8px; /* grade pill */
+  --radius-chip: 999px;
+
+  /* Shadows */
+  --shadow-*: initial;
+  --shadow-card: 0 1px 2px rgb(13 21 35 / 0.04), 0 14px 32px -26px rgb(13 21 35 / 0.4);
+  --shadow-primary: 0 10px 22px -14px rgb(31 79 216 / 0.9);
+  --shadow-modal: 0 40px 90px -30px rgb(9 15 26 / 0.6);
+  --shadow-panel: -30px 0 70px -30px rgb(9 15 26 / 0.5);
+  --shadow-segment: 0 1px 3px rgb(13 21 35 / 0.12);
+  --shadow-focus: 0 0 0 3px rgb(31 79 216 / 0.14);
+
+  /* Easing curves */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1); /* enter / module change */
+  --ease-in-fast: cubic-bezier(0.4, 0, 1, 1); /* close (140ms) */
+}
+
+@theme inline {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-white: #ffffff;
+
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-line-strong: var(--line-strong);
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-header: var(--surface-header);
+  --color-surface-inset: var(--surface-inset);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-tint: var(--primary-tint);
+  --color-primary-tint-border: var(--primary-tint-border);
+  --color-primary-on-tint: var(--primary-on-tint);
+
+  --color-petrol: var(--petrol);
+  --color-petrol-hover: var(--petrol-hover);
+  --color-petrol-tint: var(--petrol-tint);
+
+  --color-success: var(--success);
+  --color-success-hover: var(--success-hover);
+  --color-success-tint: var(--success-tint);
+  --color-success-border: var(--success-border);
+
+  --color-warning: var(--warning);
+  --color-warning-tint: var(--warning-tint);
+  --color-warning-accent: var(--warning-accent);
+  --color-warning-row: var(--warning-row);
+
+  --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
+  --color-danger-tint: var(--danger-tint);
+  --color-danger-border: var(--danger-border);
+  --color-danger-field: var(--danger-field);
+
+  --color-violet: var(--violet);
+  --color-violet-tint: var(--violet-tint);
+  --color-progress-blue: var(--progress-blue);
+
+  --color-subject-1: var(--subject-1);
+  --color-subject-2: var(--subject-2);
+  --color-subject-3: var(--subject-3);
+  --color-subject-4: var(--subject-4);
+  --color-subject-5: var(--subject-5);
+  --color-subject-6: var(--subject-6);
+  --color-subject-7: var(--subject-7);
+  --color-subject-8: var(--subject-8);
+  --color-subject-9: var(--subject-9);
+
+  --color-panel-text: var(--panel-text);
+  --color-panel-nav: var(--panel-nav);
+  --color-panel-muted: var(--panel-muted);
+  --color-panel-label: var(--panel-label);
+  --color-panel-accent: var(--panel-accent);
+
+  /* Inlined so the next/font variables resolve on the element that uses the utility. */
+  --font-display: var(--font-sora), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), ui-monospace, 'SFMono-Regular', monospace;
+}
+
+@layer base {
+  html {
+    @apply font-sans;
+    background-color: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+  }
+
+  /* Visible focus on every interactive element (README → "Foco visível"). */
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--primary-tint);
+    color: var(--primary-on-tint);
+  }
+
+  /* Hover/focus color transitions: 120ms ease-out (README → "Hover/foco"). */
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  [role='button'] {
+    transition-property: color, background-color, border-color, box-shadow;
+    transition-duration: var(--duration-hover);
+    transition-timing-function: ease-out;
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
