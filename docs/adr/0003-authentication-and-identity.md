@@ -9,6 +9,7 @@
 ## Context
 
 Five kinds of people sign in:
+
 - secretaria staff;
 - teachers;
 - guardians;
@@ -18,10 +19,12 @@ Five kinds of people sign in:
 **Students.** Many have no personal email. The spec requires them to log in with **school code + matrícula + password**, with the secretaria able to reset the password under audit. The owner confirmed that students receive a **provisional password** from the secretaria and must change it at first login.
 
 **Everyone else** is invited by email.
+
 - The invitation lasts 7 days.
 - The invitee lands on a "Primeiro acesso" page with an LGPD consent, a password strength meter and the rules ✓ 8+ characters, uppercase, number.
 
 **Other requirements:**
+
 - Password recovery by email, with the hint "ou procure a secretaria".
 - Rate limiting on login and on invitations.
 - Account lockout. The prototype's audit log shows "Conta bloqueada após 5 tentativas".
@@ -29,10 +32,12 @@ Five kinds of people sign in:
 ## Decision
 
 ### 1. Identity provider
+
 - **Supabase Auth with email and password.**
 - One `auth.users` row per human, across all tenants. Authorization comes from `memberships` ([ADR-0002](0002-multi-tenancy.md)), never from the identity record itself.
 
 ### 2. Student identity (synthetic, non-routable email)
+
 - Supabase Auth requires an email or a phone, so a student account uses:
 
   ```
@@ -48,6 +53,7 @@ Five kinds of people sign in:
 - `registration_code` is immutable in normal operation. A rare correction updates the auth email through the admin API, and the change is audited.
 
 ### 3. Login flow (`/entrar` on the apex domain, prototype layout)
+
 1. **School code** (mono field with the `.pauta.app` suffix). `public.resolve_tenant` checks it and the page shows "✓ {Escola} — {rede}".
 2. **Identifier and password.** The identifier is an email, or a matrícula when it contains no `@`. A Server Action then:
    1. validates the input with Zod;
@@ -62,6 +68,7 @@ Five kinds of people sign in:
 The prototype's "Entrar como" role cards appear **only in the demo deployment** ([ADR-0006](0006-environments-and-demo.md)).
 
 ### 4. Provisional passwords (students)
+
 - **Generation:**
   - Server-side, with a CSPRNG.
   - 10 characters from an unambiguous alphabet: no `0 O 1 l I`.
@@ -79,6 +86,7 @@ The prototype's "Entrar como" role cards appear **only in the demo deployment** 
   - is audited with the actor and the target.
 
 ### 5. Password policy
+
 - At least 8 characters, an uppercase letter and a number.
 - Enforced:
   - in Zod (shared schema);
@@ -86,12 +94,14 @@ The prototype's "Entrar como" role cards appear **only in the demo deployment** 
   - in the UI, by the 3-segment strength meter: "Senha fraca / Quase lá / Senha forte".
 
 ### 6. Password recovery
+
 - **Email users:** `resetPasswordForEmail` with `redirectTo` set to the apex `/redefinir-senha` (PKCE / `token_hash` verification).
   - The response is always generic ("Se o e-mail estiver cadastrado, você receberá um link…"), so it does not reveal whether an account exists.
   - The endpoint is rate-limited.
 - **Students:** the page explains "Alunos sem e-mail: procure a secretaria para redefinir a senha". The server rejects synthetic domains.
 
 ### 7. Rate limiting and lockout
+
 - **Limiter:** `private.rate_limit_hit(key text, max int, window interval) returns boolean`, backed by Postgres and called from server code with the service role.
 - **Login:**
   - At most 10 attempts per 15 minutes for each IP + identifier.
@@ -101,6 +111,7 @@ The prototype's "Entrar como" role cards appear **only in the demo deployment** 
 - **Supabase's own auth limits stay on.** Risk: server-side calls appear to come from Vercel's IP. At M2 we verify how to forward the client IP. If it cannot be forwarded, email users sign in from the browser client, after a server-side pre-check of the limiter and lockout.
 
 ### 8. Auth emails
+
 - Supabase's **Send Email hook** calls `POST /api/auth/email-hook`. The handler:
   1. verifies the hook signature (Standard Webhooks secret);
   2. renders **React Email** templates in pt-BR;
@@ -110,6 +121,7 @@ The prototype's "Entrar como" role cards appear **only in the demo deployment** 
 - **Fallback:** if the hook is unavailable on our plan at M2, Supabase custom SMTP (Resend SMTP) with templates generated from React Email at build time.
 
 ### 9. Invitations (staff and guardians)
+
 - **Storage:** our own `public.invitations` table, not `inviteUserByEmail`, so we control the copy, the expiry, resends and the audit trail.
 - **Fields:**
   - tenant, email (citext), full name, role, target person (`teacher_id` / `guardian_id`);
@@ -132,11 +144,13 @@ The prototype's "Entrar como" role cards appear **only in the demo deployment** 
   - Success shows the animated check, "Conta ativada" and "Entrar no portal".
 
 ### 10. Platform administrators
+
 - Listed in `platform_admins`. **TOTP MFA is mandatory**: enrollment happens at first access.
 - `app.is_platform_admin()` returns true only when the JWT `aal` claim is `aal2`.
 - `/plataforma` lives on the apex domain and requires the same.
 
 ### 11. Sessions
+
 - Cookie-based SSR sessions via `@supabase/ssr` ([ADR-0002](0002-multi-tenancy.md) §6).
 - **Verification:**
   - Server code verifies identity with `auth.getClaims()`, a verified JWT (asymmetric signing keys).
@@ -147,11 +161,13 @@ The prototype's "Entrar como" role cards appear **only in the demo deployment** 
   - A tenant code change forces re-login through `tenants.sessions_valid_after`.
 
 ### 12. Consents (LGPD)
+
 - `consents` stores the document key, version and timestamp.
 - When the privacy-policy version changes, a gate asks users to accept again before they continue.
 - Each user can see their consent history in "Minha conta" (M6).
 
 ### 13. Key handling
+
 - The browser only ever receives the **publishable** key.
 - The **secret** (service-role) key is used only in modules marked `import 'server-only'`, through `src/lib/supabase/admin.ts`.
 - An ESLint `no-restricted-imports` rule forbids importing it from client components.
@@ -159,21 +175,25 @@ The prototype's "Entrar como" role cards appear **only in the demo deployment** 
 ## Consequences
 
 ### Positive
+
 - Students without email get a simple, school-branded login. No email infrastructure touches minors' synthetic accounts.
 - Every sensitive action leaves an audit trail: invitation, acceptance, reset, lock and login.
 - Owning the invitation flow gives exact control over copy, expiry and resends, and keeps the prototype's states (Aceito / Pendente / Expirado) truthful.
 
 ### Negative and trade-offs
+
 - The synthetic emails are an implementation detail that must stay invisible in the UI and in exports. A formatter maps them back to "Matrícula 2026-00418".
 - The secretaria carries an operational burden: printing access slips and resetting passwords. This is expected in schools.
 - Our own lockout adds a table and a code path to test, but it is required by the design.
 
 ### Follow-ups
+
 - M2: verify, with Context7 and the Supabase docs, Send Email hook availability on our plan, the password requirement settings, and client-IP forwarding for auth rate limits.
 - M4: the "Redefinir senha do aluno" action and the access slip in the student record.
 - M6: password change and consent history in "Minha conta".
 
 ## Alternatives considered
+
 - **Phone or SMS login for students.** Per-message cost; many students lack phones; it creates another PII field. Rejected.
 - **Custom username/password auth for students outside Supabase Auth.** It loses battle-tested hashing, sessions and JWTs, and splits identity. Rejected.
 - **Supabase `inviteUserByEmail` / magic links.** Less control over copy, expiry and audit. Magic links are also awkward on shared family devices. Rejected for invitations; magic-link login for guardians may come later (ROADMAP).
@@ -181,6 +201,7 @@ The prototype's "Entrar como" role cards appear **only in the demo deployment** 
 - **A tenant code in the synthetic email.** The code is mutable. Rejected.
 
 ## Verification
+
 - **pgTAP:**
   - `app.is_platform_admin()` is false at `aal1`;
   - `audit.log_access_event` cannot be executed by `authenticated` or `anon`;
