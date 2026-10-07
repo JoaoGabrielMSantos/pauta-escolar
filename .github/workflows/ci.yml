@@ -5,6 +5,9 @@ on:
   push:
     branches: [main]
   merge_group:
+  # Dispatched by release.yml for release-please PRs (GITHUB_TOKEN pushes don't trigger
+  # `pull_request`); also usable manually.
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

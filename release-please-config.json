@@ -20,7 +20,8 @@
   ],
   "packages": {
     ".": {
-      "package-name": "pauta-escolar"
+      "package-name": "pauta-escolar",
+      "initial-version": "0.1.0"
     }
   }
 }
