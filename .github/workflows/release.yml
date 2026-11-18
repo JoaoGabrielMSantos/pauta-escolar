@@ -9,6 +9,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write # dispatch CI on the release PR branch (see below)
 
 jobs:
   release-please:
@@ -17,6 +18,17 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        id: release
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+      # Pushes made with GITHUB_TOKEN never trigger `pull_request` workflows, so the release
+      # PR would sit without the required checks. `workflow_dispatch` is the documented
+      # exception: run CI explicitly on the release branch so its head commit gets the checks.
+      - name: Run CI on the release PR
+        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_BRANCH: ${{ fromJSON(steps.release.outputs.pr).headBranchName }}
+        run: gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$RELEASE_BRANCH"

@@ -80,7 +80,10 @@ Multi-tenant school-management SaaS (Ensino Fundamental II e Médio, Brazil). So
   - Conventional Commits, small and atomic.
   - Branches: `feat/m1-…`, `fix/…`, `chore/…`.
   - PRs are squash-merged and **the PR title is the commit on main**, so it must be conventional.
-  - Never push to `main`. A ruleset enforces this.
+  - Never push to `main`. A ruleset enforces this, and also requires the 4 CI jobs (Lint & typecheck, Unit tests, Storybook, Build/E2E/Lighthouse).
+  - **Releases:** release-please opens `chore: release vX.Y.Z` from the commits on `main`; merging it tags the version (M0 = v0.1.0 … M9 = v1.0.0).
+    - Its PRs are created with `GITHUB_TOKEN`, which never triggers `pull_request` workflows, so `release.yml` dispatches CI on the release branch.
+    - Merge the release PR only after its CI is green.
 - **Dependencies:**
   - Exact pins and a committed lockfile.
   - **7-day quarantine:** pnpm `minimumReleaseAge` and the Dependabot cooldown.
